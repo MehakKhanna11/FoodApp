@@ -8,6 +8,7 @@ nav {
   box-shadow: 0 0 10px #0000003a;
   background-color: white;
   overflow-x: hidden;
+  z-index: 100;
 
   > div {
     display: flex;
@@ -47,6 +48,19 @@ nav {
         padding: 1rem;
         >div > a{
             margin: 0 0.5rem;
+        }
+    }
+}
+
+
+@media screen and (max-width:375px){
+    nav{
+        padding: 1rem 0.5rem;
+        >div > a{
+            margin: 0 0.5rem;
+        }
+        >div>svg{
+          font-size: 2.5rem;
         }
     }
 }
