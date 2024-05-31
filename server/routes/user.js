@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { getAdminUsers, logout, myProfile } from "../controllers/user.js";
+import { getAdminStats, getAdminUsers, logout, myProfile } from "../controllers/user.js";
 import { authorizeAdmin, isAuthenticated } from "../middlewares/auth.js";
 
 
@@ -14,12 +14,16 @@ router.get(
 );
 
 
-router.get("/login",passport.authenticate("google"),(req,res,next)=>{
+router.get("/login",passport.authenticate("google",{
+  successRedirect:process.env,FRONTEND_URL,
+}),(req,res,next)=>{
   res.send("Login successful!");}
 );
 router.get("/me",isAuthenticated,myProfile);
 router.get("/logout",logout);
 
+
+router.get("/admin/stats",isAuthenticated,authorizeAdmin,getAdminStats)
 
 
 //admin routes

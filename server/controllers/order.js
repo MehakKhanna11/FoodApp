@@ -1,6 +1,9 @@
 import { asyncError } from "../middlewares/errorMiddleware.js";
 import { Order } from "../models/order.js";
 import ErrorHandler from "../utils/errorHandler.js";
+import {instance} from "../server.js";
+import {Payment} from "../models/payment.js"
+import crypto from "crypto"
 export const placeOrder = asyncError(async (req, res, next) => {
   const {
     shippingInfo,
@@ -12,7 +15,7 @@ export const placeOrder = asyncError(async (req, res, next) => {
     shippingCharges,
     totalAmount,
   } = req.body;
-  const user = '665474edb2274b45b7e2cd31';
+  const user = req.user._id;
   const orderOption = {
     shippingInfo,
     orderItems,
@@ -30,6 +33,61 @@ export const placeOrder = asyncError(async (req, res, next) => {
     success: true,
   });
 });
+
+export const placeOrderOnline=asyncError(async (req,res,next)=>{
+  const {
+    shippingInfo,
+    orderItems,
+    paymentMethod,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    shippingCharges,
+    totalAmount,
+  } = req.body;
+  const user = req.user._id;
+  const orderOption = {
+    shippingInfo,
+    orderItems,
+    paymentMethod,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    shippingCharges,
+    totalAmount,
+    user,
+  };
+
+  const options={
+    amount:Number(totalAmount)*100,
+    currency:"INR",
+  };
+  const order=await instance.orders.create(options);
+
+  res.status(201).json({
+    order,
+    orderOption,
+    success: true,
+  });
+});
+export const paymentVerification=asyncError(async (req,res,next)=>{
+  const {razorpay_payment_id,razorpay_order_id,razorpay_signature,orderOption}=req.body;
+  const body=razorpay_order_id+"|"+razorpay_payment_id;
+  const expectedSignature=crypto.createHmac("sha256",process.env.RAZORPAY_SECRET).update(body).digest("hex");
+  const isAuthentic=expectedSignature===razorpay_signature;
+  let payment;
+  if(isAuthentic){
+    payment=await Payment.create({razorpay_order_id,razorpay_payment_id,razorpay_signature});
+    await Order.create({...orderOption,paidAt: new Date(Date.now()),paymentInfo:payment._id})
+  }
+  else{
+    return next(new ErrorHandler("Payment Failed",400))
+  }
+  res.status(201).json({success:true,message:`Order placed successfully via Online.
+  Payment ID:${payment._id}`
+})
+})
+
 
 export const getMyOrders = asyncError(async (req, res, next) => {
   const orders=await Order.find({
@@ -78,3 +136,6 @@ export const processOrder=asyncError(async(req,res,next)=>{
 
   res.status(200).json({success:true,message:"Status updated successfully"})
 })
+
+
+
