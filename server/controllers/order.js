@@ -10,7 +10,6 @@ export const placeOrder = asyncError(async (req, res, next) => {
     orderItems,
     paymentMethod,
     itemsPrice,
-    shippingPrice,
     taxPrice,
     shippingCharges,
     totalAmount,
@@ -21,7 +20,6 @@ export const placeOrder = asyncError(async (req, res, next) => {
     orderItems,
     paymentMethod,
     itemsPrice,
-    shippingPrice,
     taxPrice,
     shippingCharges,
     totalAmount,
@@ -40,7 +38,6 @@ export const placeOrderOnline=asyncError(async (req,res,next)=>{
     orderItems,
     paymentMethod,
     itemsPrice,
-    shippingPrice,
     taxPrice,
     shippingCharges,
     totalAmount,
@@ -51,7 +48,6 @@ export const placeOrderOnline=asyncError(async (req,res,next)=>{
     orderItems,
     paymentMethod,
     itemsPrice,
-    shippingPrice,
     taxPrice,
     shippingCharges,
     totalAmount,
@@ -93,7 +89,7 @@ export const getMyOrders = asyncError(async (req, res, next) => {
   const orders=await Order.find({
     user:req.user._id,
   }).populate("user","name");
-  res.status(200).json({success:true,orders,})
+  res.status(200).json({success:true,orders})
 });
 
 
@@ -129,6 +125,7 @@ export const processOrder=asyncError(async(req,res,next)=>{
     order.orderStatus="Delivered";
     order.deliveredAt=new Date(Date.now());
   }
+  
   else if(order.orderStatus==="Delivered"){
     return next(new ErrorHandler("Food Already Delivered",400));
   }

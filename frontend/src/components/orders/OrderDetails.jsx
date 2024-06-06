@@ -1,103 +1,140 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getOrderDetails } from "../../redux/actions/order.js";
+import { useParams } from "react-router-dom";
+import Loader from "../layout/Loader.jsx"
 
 const OrderDetails = () => {
+  const params = useParams();
+
+  const { order, loading } = useSelector(state=>state.orders);
+
+  const dispatch = useDispatch();
+  console.log(order)
+
+  useEffect(() => {
+    dispatch(getOrderDetails(params.id));
+  }, [params.id, dispatch]);
+
   return (
     <section className="orderDetails">
-      <main>
+      {
+        loading===false && order!=undefined ?      <main>
         <h1>Order Details</h1>
         <div>
           <h1>Shipping</h1>
           <p>
-            <b>Address</b>jsbfckjwbeckjndkjqaxnkmsn k,mscxjqwncs jcbn
+            <b>Address</b>{`${order.shippingInfo.hNo} ${order.shippingInfo.city} ${order.shippingInfo.state} ${order.shippingInfo.country} ${order.shippingInfo.pincode}`}
           </p>
         </div>
-
 
         <div>
           <h1>Contact</h1>
           <p>
-            <b>Name</b>Vada pav gurl
+            <b>Name</b>{order.user.name}
           </p>
           <p>
-            <b>Phone</b>{2847823791-20}
+            <b>Phone</b>
+            {order.shippingInfo.phoneNo}
           </p>
         </div>
 
         <div>
           <h1>Status</h1>
           <p>
-            <b>Order Status</b>Preparing
+            <b>Order Status</b>{order.orderStatus}
           </p>
           <p>
-            <b>Placed At</b>hdwnkjwbcefkjbd
+            <b>Placed At</b>{order.createdAt.split("T")[0]}
           </p>
           <p>
-            <b>Delivered At</b>efhkhefnjwdh
+            <b>Delivered At</b>{order.deliveredAt?order.deliveredAt.split("T")[0]:"NA"}
           </p>
         </div>
-
 
         <div>
           <h1>Payment</h1>
           <p>
-            <b>Payment Method</b>COD
+            <b>Payment Method</b>{order.paymentMethod}
           </p>
           <p>
-            <b>Payment Reference</b>#hqwfiu32qhfwjknd
+            <b>Payment Reference</b>{order.paymentMethod==="Online"?`#${order.paymentInfo}`:"NA"}
           </p>
           <p>
-            <b>Paid At</b>{"22:32:33"}
+            <b>Paid At</b>
+            {order.paymentMethod==="Online"?`${order.paidAt.split("T")[0]}`:"NA"}
           </p>
         </div>
 
         <div>
           <h1>Amount</h1>
           <p>
-            <b>Items Total</b>₹349
+            <b>Items Total</b>₹{order.itemsPrice}
           </p>
           <p>
-            <b>Shipping Charges</b>₹200
+            <b>Shipping Charges</b>₹{order.shippingCharges}
           </p>
           <p>
-            <b>Tax</b>{"₹23"}
+            <b>Tax</b>
+            ₹{order.taxPrice}
           </p>
           <p>
-            <b>Total Amount</b>{"₹23"}
+            <b>Total Amount</b>
+            {order.totalAmount}
           </p>
         </div>
 
         <article>
-            <h1>Ordered Items</h1>
+          <h1>Ordered Items</h1>
+          {
+            order.orderItems.cheeseVadapav.quantity>0 ?
             <div>
-                <h4>Cheese Vada Pav</h4>
-                <div>
-                    <span>{2}</span> x <span>{2}</span> 
-                </div>
-            </div>
+            <h4>Cheese Vada Pav</h4>
             <div>
-                <h4>Veggie Vada Pav</h4>
-                <div>
-                    <span>{2}</span> x <span>{2}</span> 
-                </div>
-            </div>            <div>
-                <h4>Deep Fried Vada Pav</h4>
-                <div>
-                    <span>{2}</span> x <span>{2}</span> 
-                </div>
-            </div>            <div>
-                <h4>Cheese Tandoori Vada pav</h4>
-                <div>
-                    <span>{2}</span> x <span>{2}</span> 
-                </div>
+              <span>{order.orderItems.cheeseVadapav.quantity}</span> x <span>{order.orderItems.cheeseVadapav.price}</span>
             </div>
+          </div>
+          :<span></span>
+          }
+          {
+            order.orderItems.vegVadapav.quantity>0?
+            <div>
+              <h4>Veggie Vada Pav</h4>
+              <div>
+                <span>{order.orderItems.vegVadapav.quantity}</span> x <span>{order.orderItems.cheeseVadapav.price}</span>
+              </div>
+            </div>:<span></span>
+          }
+          {
+            order.orderItems.specialVadapav.quantity>0?
+            <div>
+              <h4>Special Vada pav</h4>
+              <div>
+                <span>{order.orderItems.specialVadapav.quantity}</span> x <span>{order.orderItems.specialVadapav.price}</span>
+              </div>
+            </div>:<span></span>
+          }
 
-            <div>
-                <h4 style={{fontWeight:800}}>Sub Total</h4>
-                <div style={{fontWeight:800}}>₹{384}</div>
-            </div>
+          <div>
+            <h4 style={{ fontWeight: 800 }}>Sub Total</h4>
+            <div style={{ fontWeight: 800 }}>₹{order.itemsPrice}</div>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 800 }}>Shipping Charges</h4>
+            <div style={{ fontWeight: 800 }}>₹{order.shippingCharges}</div>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 800 }}>Tax</h4>
+            <div style={{ fontWeight: 800 }}>₹{order.taxPrice}</div>
+          </div>
+          <div>
+            <h4 style={{ fontWeight: 800 }}>Grand Total</h4>
+            <div style={{ fontWeight: 800 }}>₹{order.totalAmount}</div>
+          </div>
         </article>
+      </main>: <Loader/>
+      }
 
-      </main>
     </section>
   );
 };

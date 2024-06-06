@@ -1,12 +1,19 @@
-import React from "react";
-import founderimg from "../../assets/vadapavgirl.webp";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAdminUsers } from "../../redux/actions/admin";
+import Loader from "../layout/Loader";
 
 const Users = () => {
-  const arr = [1, 2, 3, 4];
+  const dispatch=useDispatch();
+  const {loading,users}=useSelector((state)=>state.admin)
+  useEffect(()=>{
+    dispatch(getAdminUsers());
+  },[dispatch])
 
   return (
     <section className="tableClass">
-      <main>
+      {
+        loading===false?      <main>
         <table>
           <thead>
             <tr>
@@ -19,20 +26,22 @@ const Users = () => {
           </thead>
 
           <tbody>
-            {arr.map((i) => (
+            {users && users.map((i) => (
               <tr key={i}>
-                <td>#sdkfsdfdsf</td>
-                <td>Abhi</td>
+                <td>#{i._id}</td>
+                <td>{i.name}</td>
                 <td>
-                  <img src={founderimg} alt="User" />
+                  <img src={i.photo} alt="User" />
                 </td>
-                <td>Admin</td>
-                <td>{"24-23-2023"}</td>
+                <td>{i.role}</td>
+                <td>{i.createdAt}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </main>
+      </main>:<Loader/>
+      }
+
     </section>
   );
 };

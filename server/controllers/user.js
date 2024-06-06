@@ -1,6 +1,7 @@
 import { asyncError } from "../middlewares/errorMiddleware.js";
 import { Order } from "../models/order.js";
 import {User} from "../models/user.js"
+import {Contact} from "../models/contact.js"
 export const myProfile = (req, res, next) => {
   res.status(200).json({ success: true, user: req.user });
 };
@@ -10,12 +11,14 @@ export const logout=(req,res,next)=>{
     if(err){
       return next(err);
     }
-    res.clearCookie("connect.sid",{
-      secure:process.env.NODE_ENV==="development"?false:true,
-      httpOnly:process.env.NODE_ENV==="development"?false:true,
-      sameSite:process.env.NODE_ENV==="development"?false:"none",
+    res.clearCookie("connect.sid"
+    // ,{
+    //   secure:process.env.NODE_ENV==="development"?false:true,
+    //   httpOnly:process.env.NODE_ENV==="development"?false:true,
+    //   sameSite:process.env.NODE_ENV==="development"?false:"none",
+    // }
 
-    });
+  );
     res.status(200).json({message:"logged out!"});
   })
 }
@@ -45,3 +48,8 @@ export const getAdminStats=asyncError(async(req,res,next)=>{
 })
 
 
+export const uploadContactInfo=asyncError(async(req,res,next)=>{
+  const {name,email,message,}=req.body;
+  await Contact.create({name,email,message});
+  res.status(200).json({message:"Your email has been sent",success:true});
+})
